@@ -10,11 +10,11 @@ import Foundation
 import RxSwift
 
 // todo: what is this doing
-class LocalURLSession {
+private class LocalURLSession {
     // private shared url session
     private let sharedInstance: URLSession
 
-    // "LocalURLSession" singleton - todo
+    // "LocalURLSession" singleton - todo: no singletons in library
     static let shared = LocalURLSession().sharedInstance
 
     private init() {
@@ -29,12 +29,14 @@ class LocalURLSession {
 // todo: move me
 struct Empty: Decodable {}
 
-public class DDRouter<Endpoint: EndpointType> {
+public class Router<Endpoint: EndpointType> {
+
+    public init() {}
 
     // https://medium.com/@danielt1263/retrying-a-network-request-despite-having-an-invalid-token-b8b89340d29
 
     // remove the isRelogin param
-    func request<T: Decodable>(_ route: Endpoint, isRelogin: Bool = false) -> Single<T> {
+    public func request<T: Decodable>(_ route: Endpoint, isRelogin: Bool = false) -> Single<T> {
 
         return Single.create { single in
 
@@ -65,7 +67,7 @@ public class DDRouter<Endpoint: EndpointType> {
 
                 // print response data
                 #if DEBUG
-                DDRouter.printResponse(responseData: responseData)
+                Router.printResponse(responseData: responseData)
                 #endif
 
                 // response switch
@@ -176,11 +178,11 @@ public class DDRouter<Endpoint: EndpointType> {
             timeoutInterval: 30.0)
 
         // method
-        request.httpMethod = route.httpMethod.rawValue
+        request.httpMethod = route.method.rawValue
 
         // headers
         if let additionalHeaders = route.headers {
-            DDRouter.addAdditionalHeaders(additionalHeaders, request: &request)
+            Router.addAdditionalHeaders(additionalHeaders, request: &request)
         }
 
         // content type

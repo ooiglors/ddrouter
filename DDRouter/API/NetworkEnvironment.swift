@@ -1,6 +1,6 @@
 import Foundation
 
-protocol NetworkEnvironment {
+public protocol NetworkEnvironment {
     var baseURL: String { get }
 }
 

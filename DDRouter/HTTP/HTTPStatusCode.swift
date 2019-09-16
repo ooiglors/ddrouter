@@ -18,15 +18,3 @@ enum HTTPStatusCode: Int {
     // 5xx Server error
     case serverError = 500
 }
-
-//extension HTTPStatusCode {
-//    static func isAuthorized(statusCode: Int) -> Bool {
-//        return statusCode < HTTPStatusCode.unauthorized.rawValue
-//            && statusCode >= HTTPStatusCode.ok.rawValue
-//    }
-
-//    static func is500Error(statusCode: Int) -> Bool {
-//        return statusCode <= HTTPStatusCode.serverError.rawValue
-//            && statusCode > HTTPStatusCode.unauthorized.rawValue
-//    }
-//}

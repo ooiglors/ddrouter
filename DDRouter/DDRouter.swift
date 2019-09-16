@@ -36,6 +36,8 @@ public class Router<Endpoint: EndpointType> {
     // https://medium.com/@danielt1263/retrying-a-network-request-despite-having-an-invalid-token-b8b89340d29
 
     // remove the isRelogin param
+    // this returns a single that will always subscribe on a background thread
+    // and observe on the main thread
     public func request<T: Decodable>(_ route: Endpoint, isRelogin: Bool = false) -> Single<T> {
 
         return Single.create { single in
@@ -150,6 +152,8 @@ public class Router<Endpoint: EndpointType> {
                 task?.cancel()
             }
         }
+        .subscribeOn(SerialDispatchQueueScheduler(qos: .background))
+        .observeOn(MainScheduler.instance)
     }
 
     private func buildRequest(from route: EndpointType) throws -> URLRequest {

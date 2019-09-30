@@ -23,6 +23,7 @@
 		C981C27A232F247E00738C6D /* NetworkLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = C981C26F232F247E00738C6D /* NetworkLogger.swift */; };
 		C981C27D232F24EE00738C6D /* RxSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C981C27C232F24EE00738C6D /* RxSwift.framework */; };
 		C981C27F232F256600738C6D /* ParameterEncodingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C981C27E232F256600738C6D /* ParameterEncodingTests.swift */; };
+		C9F3B80A233D919200CE086E /* TestEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9F3B809233D919200CE086E /* TestEndpoint.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -55,6 +56,7 @@
 		C981C26F232F247E00738C6D /* NetworkLogger.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NetworkLogger.swift; sourceTree = "<group>"; };
 		C981C27C232F24EE00738C6D /* RxSwift.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = RxSwift.framework; path = Carthage/Build/iOS/RxSwift.framework; sourceTree = "<group>"; };
 		C981C27E232F256600738C6D /* ParameterEncodingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParameterEncodingTests.swift; sourceTree = "<group>"; };
+		C9F3B809233D919200CE086E /* TestEndpoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestEndpoint.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -114,6 +116,7 @@
 		C981C1FA232B189100738C6D /* DDRouterTests */ = {
 			isa = PBXGroup;
 			children = (
+				C9F3B809233D919200CE086E /* TestEndpoint.swift */,
 				C981C1FB232B189100738C6D /* DDRouterTests.swift */,
 				C981C1FD232B189100738C6D /* Info.plist */,
 				C981C27E232F256600738C6D /* ParameterEncodingTests.swift */,
@@ -301,6 +304,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C9F3B80A233D919200CE086E /* TestEndpoint.swift in Sources */,
 				C981C27F232F256600738C6D /* ParameterEncodingTests.swift in Sources */,
 				C981C1FC232B189100738C6D /* DDRouterTests.swift in Sources */,
 			);

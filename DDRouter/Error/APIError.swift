@@ -39,6 +39,6 @@ public enum APIError: Error {
     logoutError,                    // Relogin failed, will be logged out directly
 
     // Unknown error
-    unknownError                    // Catch all
+    unknownError(APIErrorModel?)                   // Catch all
 }
 

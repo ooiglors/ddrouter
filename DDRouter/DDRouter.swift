@@ -9,27 +9,23 @@
 import Foundation
 import RxSwift
 
-// todo: what is this doing
-private class LocalURLSession {
-    // private shared url session
-    private let sharedInstance: URLSession
+private extension URLSession {
+    static var shared: URLSession?
 
-    // "LocalURLSession" singleton - todo: no singletons in library
-    static let shared = LocalURLSession().sharedInstance
-
-    private init() {
-        let configuration = URLSessionConfiguration.default
-        #if MOCK
-//        DDMockProtocol.initialise(config: configuration)
-        #endif
-        sharedInstance = URLSession(configuration: configuration)
+    static func initShared(configuration: URLSessionConfiguration) {
+        shared = URLSession(configuration: configuration)
     }
 }
 
-// todo: move me
-struct Empty: Decodable {}
-
 public class Router<Endpoint: EndpointType> {
+
+    // private deserializable empty response type
+    private struct Empty: Decodable {}
+
+    // must call this
+    public static func initialize(configuration: URLSessionConfiguration) {
+        URLSession.initShared(configuration: configuration)
+    }
 
     public init() {}
 
@@ -47,12 +43,18 @@ public class Router<Endpoint: EndpointType> {
             // CASE: Serialization error.
             guard let request = try? self.buildRequest(from: route) else {
                 single(.error(APIError.serializeError))
-                return Disposables.create { task?.cancel() }
+                return Disposables.create()
             }
 
             NetworkLogger.log(request: request)
 
-            task = LocalURLSession.shared.dataTask(with: request) { data, response, error in
+            guard let urlSession = URLSession.shared else {
+                let error: APIError = .unknownError(APIErrorModel(message: "DDRouter not yet initialized!"))
+                single(.error(error))
+                    return Disposables.create()
+            }
+
+            task = urlSession.dataTask(with: request) { data, response, error in
 
                 // CASE: General internal error.
                 if let error = error {
@@ -96,7 +98,7 @@ public class Router<Endpoint: EndpointType> {
 
                     // match the actual status code (or unknown error)
                     guard let statusCode = HTTPStatusCode(rawValue: response.statusCode) else {
-                        single(.error(APIError.unknownError))
+                        single(.error(APIError.unknownError(nil)))
                         return
                     }
 
@@ -131,7 +133,7 @@ public class Router<Endpoint: EndpointType> {
                         single(.error(APIError.forbidden(errorResponse?.errorResponse)))
 
                     default:
-                        single(.error(APIError.unknownError))
+                        single(.error(APIError.unknownError(nil)))
                     }
 
                 // CASE: 5xx Server error.
@@ -143,7 +145,7 @@ public class Router<Endpoint: EndpointType> {
 
                 // CASE: General network/connection error.
                 default:
-                    single(.error(APIError.unknownError))
+                    single(.error(APIError.unknownError(nil)))
                 }
             }
             task?.resume()

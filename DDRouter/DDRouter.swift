@@ -9,6 +9,14 @@
 import Foundation
 import RxSwift
 
+public class DDRouter {
+
+    // must call this
+    public static func initialize(configuration: URLSessionConfiguration) {
+        URLSession.initShared(configuration: configuration)
+    }
+}
+
 private extension URLSession {
     static var shared: URLSession?
 
@@ -22,13 +30,9 @@ public class Router<Endpoint: EndpointType> {
     // private deserializable empty response type
     private struct Empty: Decodable {}
 
-    // must call this
-    public static func initialize(configuration: URLSessionConfiguration) {
-        URLSession.initShared(configuration: configuration)
-    }
-
     public init() {}
 
+    // todo: do this in the future
     // https://medium.com/@danielt1263/retrying-a-network-request-despite-having-an-invalid-token-b8b89340d29
 
     // remove the isRelogin param

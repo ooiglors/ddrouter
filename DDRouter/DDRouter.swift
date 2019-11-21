@@ -10,18 +10,13 @@ import Foundation
 import RxSwift
 
 public class DDRouter {
+    static var sharedSession: URLSession?
+    static var printResponse = false
 
     // must call this
-    public static func initialize(configuration: URLSessionConfiguration) {
-        URLSession.initShared(configuration: configuration)
-    }
-}
-
-private extension URLSession {
-    static var shared: URLSession?
-
-    static func initShared(configuration: URLSessionConfiguration) {
-        shared = URLSession(configuration: configuration)
+    public static func initialise(configuration: URLSessionConfiguration, printResponse: Bool = false) {
+        sharedSession = URLSession(configuration: configuration)
+        Self.printResponse = printResponse
     }
 }
 
@@ -52,7 +47,7 @@ public class Router<Endpoint: EndpointType> {
 
             NetworkLogger.log(request: request)
 
-            guard let urlSession = URLSession.shared else {
+            guard let urlSession = DDRouter.sharedSession else {
                 let error: APIError = .unknownError(APIErrorModel(message: "DDRouter not yet initialized!"))
                 single(.error(error))
                     return Disposables.create()
@@ -74,9 +69,9 @@ public class Router<Endpoint: EndpointType> {
                 }
 
                 // print response data
-                #if DEBUG
-                Router.printResponse(responseData: responseData)
-                #endif
+                if DDRouter.printResponse {
+                    Router.printResponse(responseData: responseData)
+                }
 
                 // response switch
                 switch response.statusCode {

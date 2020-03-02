@@ -24,7 +24,7 @@ enum ParameterEncoding {
     
     // encoding functions // todo: make these more similar
     private static func getEncoded(encodable: Encodable) throws -> Data {
-        guard let encoded = try? JSONEncoder().encode(encodable as? AnyEncodable) else {
+        guard let encoded = try? JSONEncoder().encode(AnyEncodable(encodable)) else {
             throw NetworkError.encodingFailed
         }
         return encoded

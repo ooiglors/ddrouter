@@ -41,7 +41,7 @@ public class Router<Endpoint: EndpointType> {
 
             // CASE: Serialization error.
             guard let request = try? self.buildRequest(from: route) else {
-                single(.error(APIError.serializeError))
+                single(.error(APIError.serializeError(nil)))
                 return Disposables.create()
             }
 
@@ -84,11 +84,12 @@ public class Router<Endpoint: EndpointType> {
                         single(.success(empty))
                     }
                     else {
-                        if let decodedResponse = try? JSONDecoder().decode(T.self, from: responseData) {
+                        do {
+                            let decodedResponse = try JSONDecoder().decode(T.self, from: responseData)
                             single(.success(decodedResponse))
                         }
-                        else {
-                            single(.error(APIError.serializeError))
+                        catch (let error) {
+                            single(.error(APIError.serializeError(error)))
                         }
                     }
 

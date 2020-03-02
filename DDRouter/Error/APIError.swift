@@ -17,7 +17,7 @@ public struct APIErrorModel: Decodable {
 public enum APIError: Error {
     case
     // General (internal) errors
-    serializeError,
+    serializeError(Error?),
     internalError,
     nullData,
 

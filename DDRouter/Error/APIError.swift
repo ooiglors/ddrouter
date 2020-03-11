@@ -1,20 +1,13 @@
 import Foundation
 
-// todo: figure out always usable APIErrorModel
-
-// API Error Model for all non-auth and auth APIs.
-public struct APIErrorResponseModel: Decodable {
-    let errorResponse: APIErrorModel
-}
-
-public struct APIErrorModel: Decodable {
-    public let message: String
-}
+// implement this protocol and pass implementation type as generic
+// parameter to the router and APIError types
+public protocol APIErrorModelProtocol: Decodable {}
 
 // todo: change this to correspond to normal status codes
 
-/// An error type used by 'APIResponse' for the usual types of errors.
-public enum APIError: Error {
+/// An error type usedor http
+public enum APIError<APIErrorModel: APIErrorModelProtocol>: Error {
     case
     // General (internal) errors
     serializeError(Error?),
@@ -39,6 +32,6 @@ public enum APIError: Error {
     logoutError,                    // Relogin failed, will be logged out directly
 
     // Unknown error
-    unknownError(APIErrorModel?)                   // Catch all
+    unknownError                    // Catch all
 }
 

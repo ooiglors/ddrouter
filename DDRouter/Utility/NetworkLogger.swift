@@ -27,7 +27,7 @@ class NetworkLogger {
 
         print("\n - - - - - - - - - - OUTGOING - - - - - - - - - - \n")
         print(logOutput)
-        print("\n - - - - - - - - - -  END - - - - - - - - - - \n")
+        print("\n - - - - - - - - - - - -  - - - - - - - - - - - - \n")
     }
 
     static func log(response: URLResponse) {
@@ -37,8 +37,11 @@ class NetworkLogger {
             return
         }
 
+        var logOutput = "\(httpResponse.statusCode)\n\n"
+        httpResponse.allHeaderFields.forEach { logOutput += "\($0): \($1)\n" }
+
         print("\n - - - - - - - - - - INCOMING - - - - - - - - - - \n")
-        print(httpResponse)
-        print("\n - - - - - - - - - -  END - - - - - - - - - - \n")
+        print(logOutput)
+        print("\n - - - - - - - - - - - -  - - - - - - - - - - - - \n")
     }
 }

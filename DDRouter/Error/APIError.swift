@@ -8,7 +8,7 @@ public struct APIErrorResponseModel: Decodable {
 }
 
 public struct APIErrorModel: Decodable {
-    let message: String
+    public let message: String
 }
 
 // todo: change this to correspond to normal status codes

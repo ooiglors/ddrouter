@@ -16,11 +16,24 @@ public class DDRouter {
 }
 
 public class Router<Endpoint: EndpointType, E: APIErrorModelProtocol> {
+    var urlSession: URLSession?
 
     // private deserializable empty response type
     private struct Empty: Decodable {}
 
-    public init() {}
+    public init(ephemeralSession: Bool = false) {
+        if ephemeralSession {
+            // Clone the current session config, then mutate as needed. We won't capture changes made _after_ init(). Ok normally.
+            if let configuration = DDRouter.sharedSession?.configuration.copy() as? URLSessionConfiguration {
+                let tempConfiguration = URLSessionConfiguration.ephemeral
+                // Allow monkey patching from the main configuration such as Stubbing etc
+                tempConfiguration.protocolClasses = configuration.protocolClasses
+                urlSession = URLSession(configuration: tempConfiguration)
+            }
+        } else {
+            urlSession = DDRouter.sharedSession
+        }
+    }
 
     // todo: do this in the future
     // https://medium.com/@danielt1263/retrying-a-network-request-despite-having-an-invalid-token-b8b89340d29
@@ -30,7 +43,11 @@ public class Router<Endpoint: EndpointType, E: APIErrorModelProtocol> {
     // and observe on the main thread
     public func request<T: Decodable>(_ route: Endpoint, isRelogin: Bool = false) -> Single<T> {
 
-        return Single.create { single in
+        return Single.create { [weak self] single in
+            guard let self = self else {
+                single(.error(APIError<E>.unknownError))
+                return Disposables.create()
+            }
 
             var task: URLSessionTask?
 
@@ -50,8 +67,8 @@ public class Router<Endpoint: EndpointType, E: APIErrorModelProtocol> {
                 NetworkLogger.log(request: request)
             }
 
-            // get the shared session
-            guard let urlSession = DDRouter.sharedSession else {
+            // get the session
+            guard let urlSession = self.urlSession else {
                 single(.error(APIError<E>.unknownError))
                 return Disposables.create()
             }

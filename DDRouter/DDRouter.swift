@@ -24,10 +24,10 @@ public class Router<Endpoint: EndpointType, E: APIErrorModelProtocol> {
     public init(ephemeralSession: Bool = false) {
         if ephemeralSession {
             // Clone the current session config, then mutate as needed. We won't capture changes made _after_ init(). Ok normally.
-            if let configuration = DDRouter.sharedSession?.configuration.copy() as? URLSessionConfiguration {
+            if let masterConfiguration = DDRouter.sharedSession?.configuration {
                 let tempConfiguration = URLSessionConfiguration.ephemeral
                 // Allow monkey patching from the main configuration such as Stubbing etc
-                tempConfiguration.protocolClasses = configuration.protocolClasses
+                tempConfiguration.protocolClasses = masterConfiguration.protocolClasses
                 urlSession = URLSession(configuration: tempConfiguration)
             }
         } else {

@@ -15,7 +15,32 @@ public class DDRouter {
     }
 }
 
-public class Router<Endpoint: EndpointType, E: APIErrorModelProtocol> {
+public protocol RouterProtocol {
+    associatedtype Endpoint: EndpointType
+    associatedtype E: APIErrorModelProtocol
+    func request<T: Decodable>(_ route: Endpoint) -> Single<T>
+}
+
+public class RouterErrorProxy<Endpoint: EndpointType, E: APIErrorModelProtocol>: RouterProtocol {
+    var wrapped: Router<Endpoint, E>
+    public var onError: (_ error: Error) -> PrimitiveSequence<MaybeTrait, Int>
+    
+    public func request<T>(_ route: Endpoint) -> Single<T> where T : Decodable {
+        self.wrapped.request(route)
+        .retryWhen({ (error) -> Observable<Int> in
+            return error.flatMap({ error -> Maybe<Int> in
+                return self.onError(error)
+            })
+        })
+    }
+    
+    public init(wrapped: Router<Endpoint, E>, onError: @escaping ((_ error: Error) -> PrimitiveSequence<MaybeTrait, Int>)) {
+        self.wrapped = wrapped
+        self.onError = onError
+    }
+}
+
+public class Router<Endpoint: EndpointType, E: APIErrorModelProtocol>: RouterProtocol {
     var urlSession: URLSession?
 
     // private deserializable empty response type
@@ -38,10 +63,9 @@ public class Router<Endpoint: EndpointType, E: APIErrorModelProtocol> {
     // todo: do this in the future
     // https://medium.com/@danielt1263/retrying-a-network-request-despite-having-an-invalid-token-b8b89340d29
 
-    // remove the isRelogin param
     // this returns a single that will always subscribe on a background thread
     // and observe on the main thread
-    public func request<T: Decodable>(_ route: Endpoint, isRelogin: Bool = false) -> Single<T> {
+    public func request<T: Decodable>(_ route: Endpoint) -> Single<T> {
 
         return Single.create { [weak self] single in
             guard let self = self else {

@@ -21,25 +21,6 @@ public protocol RouterProtocol {
     func request<T: Decodable>(_ route: Endpoint) -> Single<T>
 }
 
-public class RouterErrorProxy<Endpoint: EndpointType, E: APIErrorModelProtocol>: RouterProtocol {
-    var wrapped: Router<Endpoint, E>
-    public var onError: (_ error: Error) -> PrimitiveSequence<MaybeTrait, Int>
-    
-    public func request<T>(_ route: Endpoint) -> Single<T> where T : Decodable {
-        self.wrapped.request(route)
-        .retryWhen({ (error) -> Observable<Int> in
-            return error.flatMap({ error -> Maybe<Int> in
-                return self.onError(error)
-            })
-        })
-    }
-    
-    public init(wrapped: Router<Endpoint, E>, onError: @escaping ((_ error: Error) -> PrimitiveSequence<MaybeTrait, Int>)) {
-        self.wrapped = wrapped
-        self.onError = onError
-    }
-}
-
 public class Router<Endpoint: EndpointType, E: APIErrorModelProtocol>: RouterProtocol {
     var urlSession: URLSession?
 

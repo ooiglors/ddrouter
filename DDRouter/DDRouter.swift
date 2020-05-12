@@ -19,15 +19,16 @@ public protocol RouterProtocol {
     associatedtype Endpoint: EndpointType
     associatedtype E: APIErrorModelProtocol
     func request<T: Decodable>(_ route: Endpoint) -> Single<T>
+    init(ephemeralSession: Bool)
 }
 
 public class Router<Endpoint: EndpointType, E: APIErrorModelProtocol>: RouterProtocol {
     var urlSession: URLSession?
 
-    // private deserializable empty response type
-    private struct Empty: Decodable {}
+    // Just Void, which is a popular choice when forced to have _some_ type (plus it's primitive so : Decodable)
+    typealias Empty = Void
 
-    public init(ephemeralSession: Bool = false) {
+    required public init(ephemeralSession: Bool = false) {
         if ephemeralSession {
             // Clone the current session config, then mutate as needed. We won't capture changes made _after_ init(). Ok normally.
             if let masterConfiguration = DDRouter.sharedSession?.configuration {
@@ -111,21 +112,25 @@ public class Router<Endpoint: EndpointType, E: APIErrorModelProtocol>: RouterPro
                 // response switch
                 switch response.statusCode {
 
-                // 2xx success.
-                case 200...299:
-                    // todo: this should be more clear
-                    if responseData.isEmpty {
-                        let empty = Empty() as! T
-                        single(.success(empty))
+                // 204 success but no content at all
+                case 204:
+                // Don't even bother reading content server has indicated it's empty
+                    if let result = Empty() as? T {
+                        // Canonical type for empty as defined by us
+                        single(.success(result))
+                    }  else {
+                        // We can't deserialise the type because there's no init() in protocol
+                        single(.error(NetworkError.encodingFailed))
                     }
-                    else {
-                        do {
-                            let decodedResponse = try JSONDecoder().decode(T.self, from: responseData)
-                            single(.success(decodedResponse))
-                        }
-                        catch (let error) {
-                            single(.error(APIError<E>.serializeError(error)))
-                        }
+
+                // 2xx success.
+                case 200...203, 205...299:
+                    do {
+                        let decodedResponse = try JSONDecoder().decode(T.self, from: responseData)
+                        single(.success(decodedResponse))
+                    }
+                    catch (let error) {
+                        single(.error(APIError<E>.serializeError(error)))
                     }
 
                 // 4xx client errors

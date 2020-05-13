@@ -22,11 +22,14 @@ public protocol RouterProtocol {
     init(ephemeralSession: Bool)
 }
 
+public struct EmptyStruct: Decodable {}
+
+extension RouterProtocol {
+    public typealias Empty = EmptyStruct
+}
+
 public class Router<Endpoint: EndpointType, E: APIErrorModelProtocol>: RouterProtocol {
     var urlSession: URLSession?
-
-    // Just Void, which is a popular choice when forced to have _some_ type (plus it's primitive so : Decodable)
-    typealias Empty = Void
 
     required public init(ephemeralSession: Bool = false) {
         if ephemeralSession {

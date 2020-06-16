@@ -208,7 +208,8 @@ public class Router<Endpoint: EndpointType, E: APIErrorModelProtocol>: RouterPro
     // build URLRequest from a given endpoint route
     private func buildRequest(from route: EndpointType) throws -> URLRequest {
 
-        guard var urlComponents = URLComponents(
+        guard let urlSession = self.urlSession,
+            var urlComponents = URLComponents(
             url: route.baseURL.appendingPathComponent(route.path),
             resolvingAgainstBaseURL: true) else {
                 throw APIError<E>.internalError
@@ -229,7 +230,7 @@ public class Router<Endpoint: EndpointType, E: APIErrorModelProtocol>: RouterPro
         var request = URLRequest(
             url: url,
             cachePolicy: .reloadIgnoringLocalAndRemoteCacheData,
-            timeoutInterval: 30.0)
+            timeoutInterval: urlSession.configuration.timeoutIntervalForRequest)
 
         // method
         request.httpMethod = route.method.rawValue

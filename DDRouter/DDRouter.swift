@@ -140,11 +140,7 @@ public class Router<Endpoint: EndpointType, E: APIErrorModelProtocol>: RouterPro
                 case 400...499:
 
                     // match the actual status code (or unknown error)
-                    guard let statusCode = HTTPStatusCode(rawValue: response.statusCode) else {
-                        single(.error(APIError<E>.unknownError))
-                        return
-                    }
-
+                    let statusCode = HTTPStatusCode(rawValue: response.statusCode)
                     switch statusCode {
 
                     // bad request
@@ -173,13 +169,6 @@ public class Router<Endpoint: EndpointType, E: APIErrorModelProtocol>: RouterPro
 
                     // forbidden
                     case .forbidden:
-                        let error = try? JSONDecoder().decode(
-                            E.self,
-                            from: responseData)
-                        single(.error(APIError<E>.forbidden(error)))
-                    
-                    // forbidden
-                    case .other:
                         let error = try? JSONDecoder().decode(
                             E.self,
                             from: responseData)

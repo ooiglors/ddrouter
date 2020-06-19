@@ -177,10 +177,23 @@ public class Router<Endpoint: EndpointType, E: APIErrorModelProtocol>: RouterPro
                             E.self,
                             from: responseData)
                         single(.error(APIError<E>.forbidden(error)))
+                    
+                    // forbidden
+                    case .other:
+                        let error = try? JSONDecoder().decode(
+                            E.self,
+                            from: responseData)
+                        single(.error(APIError<E>.forbidden(error)))
 
                     // unknown
                     default:
-                        single(.error(APIError<E>.unknownError))
+                        if let error = try? JSONDecoder().decode(
+                            E.self,
+                            from: responseData) {
+                            single(.error(APIError<E>.other4xx(error)))
+                        } else {
+                            single(.error(APIError<E>.unknownError))
+                        }
                     }
 
                 // 5xx server error

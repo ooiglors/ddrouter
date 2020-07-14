@@ -19,7 +19,7 @@ public enum APIError<APIErrorModel: APIErrorModelProtocol>: Error {
     unauthorized(APIErrorModel?),
     forbidden(APIErrorModel?),
     notFound,
-    tooManyRequests,
+    tooManyRequests(APIErrorModel?),
 
     // 5xx Server errors
     serverError(APIErrorModel?),    // 500

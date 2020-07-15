@@ -140,11 +140,7 @@ public class Router<Endpoint: EndpointType, E: APIErrorModelProtocol>: RouterPro
                 case 400...499:
 
                     // match the actual status code (or unknown error)
-                    guard let statusCode = HTTPStatusCode(rawValue: response.statusCode) else {
-                        single(.error(APIError<E>.unknownError))
-                        return
-                    }
-
+                    let statusCode = HTTPStatusCode(rawValue: response.statusCode)
                     switch statusCode {
 
                     // bad request
@@ -183,7 +179,13 @@ public class Router<Endpoint: EndpointType, E: APIErrorModelProtocol>: RouterPro
 
                     // unknown
                     default:
-                        single(.error(APIError<E>.unknownError))
+                        if let error = try? JSONDecoder().decode(
+                            E.self,
+                            from: responseData) {
+                            single(.error(APIError<E>.other4xx(error)))
+                        } else {
+                            single(.error(APIError<E>.unknownError))
+                        }
                     }
 
                 // 5xx server error

@@ -165,7 +165,10 @@ public class Router<Endpoint: EndpointType, E: APIErrorModelProtocol>: RouterPro
 
                     // too many requests
                     case .tooManyRequests:
-                        single(.error(APIError<E>.tooManyRequests))
+                        let error = try? JSONDecoder().decode(
+                            E.self,
+                            from: responseData)
+                        single(.error(APIError<E>.tooManyRequests(error)))
 
                     // forbidden
                     case .forbidden:

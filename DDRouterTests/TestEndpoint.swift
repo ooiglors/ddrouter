@@ -53,4 +53,8 @@ extension TestEndpoint: EndpointType {
     var headers: HTTPHeaders? {
         return [:]
     }
+
+    var allowedQueryParameterCharacterSet: CharacterSet {
+        return .urlQueryAllowed
+    }
 }

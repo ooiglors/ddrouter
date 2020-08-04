@@ -21,7 +21,11 @@ public protocol EndpointType {
     // query parameters
     // todo: why is this one not typealiased the same as headers?
     var query: [String: String] { get }
+}
 
+public extension EndpointType {
     // allowed character set for percent encoding of query
-    var allowedQueryParameterCharacterSet: CharacterSet
+    var allowedQueryParameterCharacterSet: CharacterSet {
+        return .urlQueryAllowed
+    }
 }

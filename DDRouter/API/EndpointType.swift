@@ -26,6 +26,6 @@ public protocol EndpointType {
 public extension EndpointType {
     // allowed character set for percent encoding of query
     var allowedQueryParameterCharacterSet: CharacterSet {
-        return CharacterSet(charactersIn: "!*'();:@&=+$,/?%#[] ").inverted
+        return .urlQueryAllowed
     }
 }
